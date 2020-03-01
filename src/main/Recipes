@@ -1,0 +1,21 @@
+package main;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.ShapelessRecipe;
+
+public class Recipes {
+	private WaypointScrollsMain pl = WaypointScrollsMain.getInstance();
+	
+	public void registerRecipes() {
+		registerUnboundScroll();
+	}
+		private void registerUnboundScroll() {
+		ShapelessRecipe recipe = new ShapelessRecipe(pl.recipeScroll,pl.items.scroll);
+		recipe.addIngredient(Material.ENDER_PEARL);
+		recipe.addIngredient(Material.PAPER);
+		pl.getServer().addRecipe(recipe);
+		}
+		
+	
+
+}
