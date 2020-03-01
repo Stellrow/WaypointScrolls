@@ -1,0 +1,48 @@
+package main;
+
+import org.bukkit.NamespacedKey;
+import org.bukkit.plugin.java.JavaPlugin;
+
+
+public class WaypointScrollsMain extends JavaPlugin{
+	NamespacedKey scrollData = new NamespacedKey(this,"WaypointScrolls.data");
+	NamespacedKey scrollDataBounded = new NamespacedKey(this,"WaypointScrolls.dataBounded");
+	NamespacedKey recipeScroll = new NamespacedKey(this,"WaypointScrolls.recipe");
+	private static WaypointScrollsMain instance;
+	public ItemsClass items;
+	public Recipes recipes;
+	public EventsClass eventsClass;
+	
+	
+	public void onEnable() {
+		instance = this;
+		loadConfig();
+		registerInstances();
+		
+		items.createItems();
+		recipes.registerRecipes();
+		registerEvents();
+	}
+	public void onDisable() {
+		
+	}
+	
+	public static WaypointScrollsMain getInstance() {
+		return instance;
+	}
+	
+	private void registerInstances() {
+		items = new ItemsClass();
+		recipes = new Recipes();
+		eventsClass = new EventsClass();
+	}
+	private void loadConfig() {
+		getConfig().options().copyDefaults(true);
+		saveConfig();
+	}
+	private void registerEvents() {
+		getServer().getPluginManager().registerEvents(eventsClass, this);
+	}
+	
+
+}
