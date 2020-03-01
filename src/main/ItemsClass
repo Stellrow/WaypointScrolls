@@ -1,0 +1,35 @@
+package main;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+
+import net.md_5.bungee.api.ChatColor;
+
+public class ItemsClass {
+	private WaypointScrollsMain pl = WaypointScrollsMain.getInstance();
+	public ItemStack scroll;
+	
+	public void createItems() {
+	scroll = new ItemStack(Material.valueOf(pl.getConfig().getString("UnboundedScroll.Type")));
+	ItemMeta scrollm = scroll.getItemMeta();
+	String displayName = ChatColor.translateAlternateColorCodes('&', pl.getConfig().getString("UnboundedScroll.Name"));
+	scrollm.setDisplayName(displayName);
+	List<String> lore = new ArrayList<String>();
+	List<String> cLore = pl.getConfig().getStringList("UnboundedScroll.Lore");
+	for(String string : cLore) {
+		String translated = ChatColor.translateAlternateColorCodes('&', string);
+		lore.add(translated);
+	}
+	
+	
+	scrollm.getPersistentDataContainer().set(pl.scrollData, PersistentDataType.STRING, "waypointscrolls.unbound");
+	scrollm.setLore(lore);
+	scroll.setItemMeta(scrollm);
+	
+	}
+}
