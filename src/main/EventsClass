@@ -1,0 +1,96 @@
+package main;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+
+import net.md_5.bungee.api.ChatColor;
+
+public class EventsClass implements Listener
+{
+	private WaypointScrollsMain pl = WaypointScrollsMain.getInstance();
+
+	//Bound Scroll
+	@EventHandler
+	public void onRightClickUnboundedScroll(PlayerInteractEvent e) {
+		if(e.getItem()==null) {
+			return;
+		}
+		if(e.getItem().getType()==Material.valueOf(pl.getConfig().getString("UnboundedScroll.Type"))) {
+			if(e.getAction()==Action.RIGHT_CLICK_AIR||e.getAction()==Action.RIGHT_CLICK_BLOCK) {
+					if(e.getItem().getItemMeta().hasDisplayName()) {
+				if(e.getItem().hasItemMeta()&&e.getItem().getItemMeta().getPersistentDataContainer().get(pl.scrollData, PersistentDataType.STRING)=="waypointscrolls.unbound") {
+					ItemStack item = new ItemStack(Material.valueOf(pl.getConfig().getString("BoundedScroll.Type")));
+					ItemMeta im = item.getItemMeta();
+					String displayName = ChatColor.translateAlternateColorCodes('&', pl.getConfig().getString("BoundedScroll.Name"));
+					im.setDisplayName(displayName);
+					List<String> lore = new ArrayList<String>();
+					List<String> cLore = pl.getConfig().getStringList("BoundedScroll.Lore");
+					for(String string : cLore) {
+						String translated = ChatColor.translateAlternateColorCodes('&', string);
+						lore.add(translated);
+					}
+					Location loc = e.getPlayer().getLocation();
+					lore.add(loc.getWorld().getName()+","+(int)loc.getX()+","+(int)loc.getY()+","+(int)loc.getZ());
+					im.setLore(lore);
+					im.getPersistentDataContainer().set(pl.scrollDataBounded, PersistentDataType.STRING, "waypointscrolls.boundedscroll");
+					item.setItemMeta(im);
+					e.getItem().setAmount(e.getItem().getAmount()-1);
+					
+					HashMap<Integer,ItemStack> remItems = e.getPlayer().getInventory().addItem(item);
+					if(!remItems.isEmpty()) {
+						e.getPlayer().getWorld().dropItemNaturally(e.getPlayer().getLocation(), item);
+						remItems.clear();
+					}
+					
+				}
+			}
+				
+			}
+		}
+	}
+	//Use scroll
+	@EventHandler
+	public void onUseBoundedScroll(PlayerInteractEvent e) {
+		if(e.getItem()==null) {
+			return;
+		}
+		if(e.getAction()==Action.RIGHT_CLICK_AIR||e.getAction()==Action.RIGHT_CLICK_BLOCK) {
+			if(!e.getItem().hasItemMeta()) {
+				return;
+			}
+		if(e.getItem().getType()==Material.valueOf(pl.getConfig().getString("BoundedScroll.Type"))) {
+			if(e.getItem().getItemMeta().getPersistentDataContainer().get(pl.scrollDataBounded, PersistentDataType.STRING)=="waypointscrolls.boundedscroll") {
+				ItemStack item = e.getItem();
+				List<String> lore = item.getLore();
+				String lLore = lore.get(lore.size()-1);
+				String[] splitLore = lLore.split(",");
+				Location toTeleport = new Location(Bukkit.getWorld(splitLore[0]),Integer.parseInt(splitLore[1]),Integer.parseInt(splitLore[2]),Integer.parseInt(splitLore[3]));
+				Chunk targetChunk = toTeleport.getChunk();
+				if(!targetChunk.isLoaded()) {
+				toTeleport.getWorld().getChunkAt(toTeleport).load();
+				}
+				e.getPlayer().teleport(toTeleport);
+				e.getItem().setAmount(e.getItem().getAmount()-1);
+				
+				
+			}
+		}
+				
+		
+		}
+	}
+	
+}
